@@ -8,7 +8,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import { Avatar, IconButton, Menu, MenuItem, Paper, Typography } from '@material-ui/core';
 import { useHomeStyles } from '../pages/theme';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { formatDate } from '../utils/formatDate';
 
 interface TweetProps {
@@ -58,7 +58,7 @@ export const Tweet: React.FC<TweetProps> = ({
           src={user.avatarUrl}
         />
         <div className={classes.tweetContent}>
-          <Typography className={classes.tweetHeader}>
+          <div className={classes.tweetHeader}>
             <div>
               <b>{user.fullname}</b>&nbsp;
               <span className={classes.tweetUserName}>@{user.username}</span>&nbsp;
@@ -90,7 +90,7 @@ export const Tweet: React.FC<TweetProps> = ({
                 </MenuItem>
               </Menu>
             </div>
-          </Typography>
+          </div>
           <Typography variant="body1" gutterBottom>
             {text}
           </Typography>
