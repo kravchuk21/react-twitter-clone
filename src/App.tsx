@@ -1,40 +1,44 @@
+import TwitterIcon from '@material-ui/icons/Twitter';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Layout } from './pages/Layout';
 import { SignIn } from './pages/SignIn';
+import { useHomeStyles } from './pages/theme';
 import { UserPage } from './pages/User';
-import { AuthApi } from './services/api/authApi';
-import { setUserData } from './store/ducks/user/actionCreators';
-import { selectIsAuth } from './store/ducks/user/selectors';
+import { fetchUserData } from './store/ducks/user/actionCreators';
+import { selectIsAuth, selectUserStatus } from './store/ducks/user/selectors';
+import { LoadingStatus } from './store/types';
 
 function App() {
-  // TODO: Поправить через саги или как-нибудь по другому, это херня
+  const classes = useHomeStyles();
   const history = useHistory();
   const dispatch = useDispatch();
   const isAuth = useSelector(selectIsAuth);
-
-  // TODO: Чекать если юзер не авторизован, то очищать токен и редакс
-  const checkAuth = async () => {
-    try {
-      const { data } = await AuthApi.getMe();
-      dispatch(setUserData(data));
-      // history.replace('/home');
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const loadingStatus = useSelector(selectUserStatus);
+  const isReady = loadingStatus !== LoadingStatus.NEVER && loadingStatus !== LoadingStatus.LOADING;
 
   React.useEffect(() => {
-    checkAuth();
-  }, []);
+    dispatch(fetchUserData());
+  }, [dispatch]);
 
   React.useEffect(() => {
-    if (isAuth) {
+    if (!isAuth && isReady) {
+      history.push('/signin');
+    } else {
       history.push('/home');
     }
-  }, [isAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuth, isReady]);
+
+  if (!isReady) {
+    return (
+      <div className={classes.centered}>
+        <TwitterIcon color="primary" style={{ width: 80, height: 80 }} />
+      </div>
+    );
+  }
 
   return (
     <div className="App">

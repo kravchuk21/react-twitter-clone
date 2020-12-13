@@ -28,7 +28,7 @@ export const Tweet: React.FC<TweetProps> = ({
   text,
   user,
   classes,
-  createdAt
+  createdAt,
 }: TweetProps): React.ReactElement => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -37,7 +37,7 @@ export const Tweet: React.FC<TweetProps> = ({
   const handleClickTweet = (event: React.MouseEvent<HTMLAnchorElement>): void => {
     event.preventDefault();
     history.push(`/home/tweet/${_id}`);
-  }
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -45,7 +45,9 @@ export const Tweet: React.FC<TweetProps> = ({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
     setAnchorEl(null);
   };
 
@@ -70,24 +72,12 @@ export const Tweet: React.FC<TweetProps> = ({
                 aria-label="more"
                 aria-controls="long-menu"
                 aria-haspopup="true"
-                onClick={handleClick}
-              >
+                onClick={handleClick}>
                 <MoreVertIcon />
               </IconButton>
-              <Menu
-                id="long-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={open}
-                onClose={handleClose}
-
-              >
-                <MenuItem onClick={handleClose}>
-                  Редактировать
-                </MenuItem>
-                <MenuItem onClick={handleClose}>
-                  Удалить твит
-                </MenuItem>
+              <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <MenuItem onClick={handleClose}>Редактировать</MenuItem>
+                <MenuItem onClick={handleClose}>Удалить твит</MenuItem>
               </Menu>
             </div>
           </div>
