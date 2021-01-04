@@ -7,12 +7,13 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import IconButton from '@material-ui/core/IconButton';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined';
-import EmojiIcon from '@material-ui/icons/SentimentSatisfiedOutlined';
 import { useHomeStyles } from '../pages/theme';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAddTweet } from '../store/ducks/tweets/actionCreators';
+import { fetchAddTweet, setAddFormState } from '../store/ducks/tweets/actionCreators';
 import { selectAddFormState } from '../store/ducks/tweets/selectors';
 import { AddFormState } from '../store/ducks/tweets/contracts/state';
+import { UploadImages } from './UploadImages';
+import { uploadImage } from '../utils/uploadImage';
 
 interface AddTweetFormProps {
   classes: ReturnType<typeof useHomeStyles>;
@@ -21,12 +22,18 @@ interface AddTweetFormProps {
 
 const MAX_LENGTH = 280;
 
+export interface ImageObj {
+  blobUrl: string;
+  file: File;
+}
+
 export const AddTweetForm: React.FC<AddTweetFormProps> = ({
   classes,
   maxRows,
 }: AddTweetFormProps): React.ReactElement => {
   const dispatch = useDispatch();
   const [text, setText] = React.useState<string>('');
+  const [images, setImages] = React.useState<ImageObj[]>([]);
 
   const addFormState = useSelector(selectAddFormState);
   const textLimitPercent = Math.round((text.length / 280) * 100);
@@ -38,19 +45,23 @@ export const AddTweetForm: React.FC<AddTweetFormProps> = ({
     }
   };
 
-  const handleClickAddTweet = (): void => {
-    dispatch(fetchAddTweet(text));
+  const handleClickAddTweet = async (): Promise<void> => {
+    let result = [];
+    dispatch(setAddFormState(AddFormState.LOADING));
+    for (let i = 0; i < images.length; i++) {
+      const file = images[i].file;
+      const { url } = await uploadImage(file);
+      result.push(url);
+    }
+    dispatch(fetchAddTweet({ text, images: result }));
     setText('');
+    setImages([]);
   };
 
   return (
     <div>
       <div className={classes.addFormBody}>
-        <Avatar
-          className={classes.tweetAvatar}
-          alt={`Аватарка пользователя UserAvatar`}
-          src="https://pbs.twimg.com/profile_images/796061890451542016/J-O1AguD_bigger.jpg"
-        />
+        <Avatar className={classes.tweetAvatar} alt={`Аватарка пользователя UserAvatar`} />
         <TextareaAutosize
           onChange={handleChangeTextare}
           className={classes.addFormTextarea}
@@ -61,12 +72,7 @@ export const AddTweetForm: React.FC<AddTweetFormProps> = ({
       </div>
       <div className={classes.addFormBottom}>
         <div className={classNames(classes.tweetFooter, classes.addFormBottomActions)}>
-          <IconButton color="primary">
-            <ImageOutlinedIcon style={{ fontSize: 26 }} />
-          </IconButton>
-          <IconButton color="primary">
-            <EmojiIcon style={{ fontSize: 26 }} />
-          </IconButton>
+          <UploadImages images={images} onChangeImages={setImages} />
         </div>
         <div className={classes.addFormBottomRight}>
           {text && (

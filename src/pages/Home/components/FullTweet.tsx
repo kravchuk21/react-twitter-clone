@@ -1,5 +1,6 @@
 import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
+import mediumZoom from 'medium-zoom';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -11,12 +12,13 @@ import ShareIcon from '@material-ui/icons/ReplyOutlined';
 import { Divider, IconButton } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import format from 'date-fns/format'
-import ruLang from 'date-fns/locale/ru'
+import format from 'date-fns/format';
+import ruLang from 'date-fns/locale/ru';
 import { fetchTweetData, setTweetData } from '../../../store/ducks/tweet/actionCreators';
 import { selectIsTweetLoading, selectTweetData } from '../../../store/ducks/tweet/selectors';
 import { useHomeStyles } from '../../theme';
 import { Tweet } from '../../../components/Tweet';
+import { ImageList } from '../../../components/ImageList';
 
 export const FullTweet: React.FC = (): React.ReactElement | null => {
   const classes = useHomeStyles();
@@ -35,6 +37,12 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
       dispatch(setTweetData(undefined));
     };
   }, [dispatch, id]);
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      mediumZoom('.tweet-images img');
+    }
+  }, [isLoading]);
 
   if (isLoading) {
     return (
@@ -63,10 +71,17 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
           </div>
           <Typography className={classes.fullTweetText} gutterBottom>
             {tweetData.text}
+            <div className="tweet-images">
+              {tweetData.images && <ImageList classes={classes} images={tweetData.images} />}
+            </div>
           </Typography>
           <Typography>
-            <span className={classes.tweetUserName}>{format(new Date(tweetData.createdAt), 'H:mm', { locale: ruLang })} · </span>
-            <span className={classes.tweetUserName}>{format(new Date(tweetData.createdAt), 'dd MMM. yyyy г.', { locale: ruLang })}</span>
+            <span className={classes.tweetUserName}>
+              {format(new Date(tweetData.createdAt), 'H:mm', { locale: ruLang })} ·{' '}
+            </span>
+            <span className={classes.tweetUserName}>
+              {format(new Date(tweetData.createdAt), 'dd MMM. yyyy г.', { locale: ruLang })}
+            </span>
           </Typography>
           <div className={classNames(classes.tweetFooter, classes.fullTweetFooter)}>
             <IconButton>
