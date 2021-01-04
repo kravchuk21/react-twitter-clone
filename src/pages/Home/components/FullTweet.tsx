@@ -1,5 +1,6 @@
 import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
+import mediumZoom from 'medium-zoom';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -10,13 +11,14 @@ import LikeIcon from '@material-ui/icons/FavoriteBorderOutlined';
 import ShareIcon from '@material-ui/icons/ReplyOutlined';
 import { Divider, IconButton } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import format from 'date-fns/format'
-import ruLang from 'date-fns/locale/ru'
+import { Link, useParams } from 'react-router-dom';
+import format from 'date-fns/format';
+import ruLang from 'date-fns/locale/ru';
 import { fetchTweetData, setTweetData } from '../../../store/ducks/tweet/actionCreators';
 import { selectIsTweetLoading, selectTweetData } from '../../../store/ducks/tweet/selectors';
 import { useHomeStyles } from '../../theme';
 import { Tweet } from '../../../components/Tweet';
+import { ImageList } from '../../../components/ImageList';
 
 export const FullTweet: React.FC = (): React.ReactElement | null => {
   const classes = useHomeStyles();
@@ -36,6 +38,12 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
     };
   }, [dispatch, id]);
 
+  React.useEffect(() => {
+    if (!isLoading) {
+      mediumZoom('.tweet-images img');
+    }
+  }, [isLoading]);
+
   if (isLoading) {
     return (
       <div className={classes.tweetsCentred}>
@@ -52,10 +60,11 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
             <Avatar
               className={classes.tweetAvatar}
               alt={`Аватарка пользователя ${tweetData.user.fullname}`}
-              src={tweetData.user.avatarUrl}
             />
             <Typography>
-              <b>{tweetData.user.fullname}</b>&nbsp;
+              <Link to={`/user/${tweetData.user._id}`}>
+                <b>{tweetData.user.fullname}</b>&nbsp;
+              </Link>
               <div>
                 <span className={classes.tweetUserName}>@{tweetData.user.username}</span>&nbsp;
               </div>
@@ -63,10 +72,17 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
           </div>
           <Typography className={classes.fullTweetText} gutterBottom>
             {tweetData.text}
+            <div className="tweet-images">
+              {tweetData.images && <ImageList classes={classes} images={tweetData.images} />}
+            </div>
           </Typography>
           <Typography>
-            <span className={classes.tweetUserName}>{format(new Date(tweetData.createdAt), 'H:mm', { locale: ruLang })} · </span>
-            <span className={classes.tweetUserName}>{format(new Date(tweetData.createdAt), 'dd MMM. yyyy г.', { locale: ruLang })}</span>
+            <span className={classes.tweetUserName}>
+              {format(new Date(tweetData.createdAt), 'H:mm', { locale: ruLang })} ·{' '}
+            </span>
+            <span className={classes.tweetUserName}>
+              {format(new Date(tweetData.createdAt), 'dd MMM. yyyy г.', { locale: ruLang })}
+            </span>
           </Typography>
           <div className={classNames(classes.tweetFooter, classes.fullTweetFooter)}>
             <IconButton>
@@ -91,8 +107,6 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
           user={{
             fullname: 'Arlene Andrews',
             username: 'ArleneAndrews_1',
-            avatarUrl:
-              'https://pbs.twimg.com/profile_images/1172922412029136897/gFRmgn1W_bigger.jpg',
           }}
           classes={classes}
         />
@@ -103,8 +117,6 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
           user={{
             fullname: 'Arlene Andrews',
             username: 'ArleneAndrews_1',
-            avatarUrl:
-              'https://pbs.twimg.com/profile_images/1172922412029136897/gFRmgn1W_bigger.jpg',
           }}
           classes={classes}
         />
@@ -115,8 +127,6 @@ export const FullTweet: React.FC = (): React.ReactElement | null => {
           user={{
             fullname: 'Arlene Andrews',
             username: 'ArleneAndrews_1',
-            avatarUrl:
-              'https://pbs.twimg.com/profile_images/1172922412029136897/gFRmgn1W_bigger.jpg',
           }}
           classes={classes}
         />

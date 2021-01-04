@@ -10,17 +10,18 @@ import { Avatar, IconButton, Menu, MenuItem, Paper, Typography } from '@material
 import { useHomeStyles } from '../pages/theme';
 import { useHistory } from 'react-router-dom';
 import { formatDate } from '../utils/formatDate';
+import { ImageList } from './ImageList';
+import { removeTweet } from '../store/ducks/tweets/actionCreators';
+import { useDispatch } from 'react-redux';
+import { User } from '../store/ducks/user/contracts/state';
 
 interface TweetProps {
   _id: string;
   text: string;
   classes: ReturnType<typeof useHomeStyles>;
   createdAt: string;
-  user: {
-    fullname: string;
-    username: string;
-    avatarUrl: string;
-  };
+  images?: string[];
+  user: Pick<User, '_id' | 'fullname' | 'username'>;
 }
 
 export const Tweet: React.FC<TweetProps> = ({
@@ -28,8 +29,10 @@ export const Tweet: React.FC<TweetProps> = ({
   text,
   user,
   classes,
+  images,
   createdAt,
 }: TweetProps): React.ReactElement => {
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const history = useHistory();
@@ -45,20 +48,23 @@ export const Tweet: React.FC<TweetProps> = ({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClose = (event: React.MouseEvent<HTMLElement>): void => {
     event.stopPropagation();
     event.preventDefault();
     setAnchorEl(null);
   };
 
+  const handleRemove = (event: React.MouseEvent<HTMLElement>): void => {
+    handleClose(event);
+    if (window.confirm('Вы действительно хотите удалить твит?')) {
+      dispatch(removeTweet(_id));
+    }
+  };
+
   return (
     <a onClick={handleClickTweet} className={classes.tweetWrapper} href={`/home/tweet/${_id}`}>
       <Paper className={classNames(classes.tweet, classes.tweetsHeader)} variant="outlined">
-        <Avatar
-          className={classes.tweetAvatar}
-          alt={`Аватарка пользователя ${user.fullname}`}
-          src={user.avatarUrl}
-        />
+        <Avatar className={classes.tweetAvatar} alt={`Аватарка пользователя ${user.fullname}`} />
         <div className={classes.tweetContent}>
           <div className={classes.tweetHeader}>
             <div>
@@ -77,12 +83,13 @@ export const Tweet: React.FC<TweetProps> = ({
               </IconButton>
               <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                 <MenuItem onClick={handleClose}>Редактировать</MenuItem>
-                <MenuItem onClick={handleClose}>Удалить твит</MenuItem>
+                <MenuItem onClick={handleRemove}>Удалить твит</MenuItem>
               </Menu>
             </div>
           </div>
           <Typography variant="body1" gutterBottom>
             {text}
+            {images && <ImageList classes={classes} images={images} />}
           </Typography>
           <div className={classes.tweetFooter}>
             <div>

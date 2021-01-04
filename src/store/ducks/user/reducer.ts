@@ -6,7 +6,7 @@ import { UserState } from './contracts/state';
 
 const initialUserState: UserState = {
   data: undefined,
-  status: LoadingStatus.NEVER
+  status: LoadingStatus.NEVER,
 };
 
 export const userReducer = produce((draft: Draft<UserState>, action: UserActions) => {
@@ -18,6 +18,11 @@ export const userReducer = produce((draft: Draft<UserState>, action: UserActions
 
     case UserActionsType.SET_LOADING_STATE:
       draft.status = action.payload;
+      break;
+
+    case UserActionsType.SIGN_OUT:
+      draft.status = LoadingStatus.LOADED;
+      draft.data = undefined;
       break;
 
     default:

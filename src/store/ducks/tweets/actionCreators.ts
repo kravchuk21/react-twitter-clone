@@ -3,6 +3,7 @@ import {
   AddTweetActionInterface,
   FetchAddTweetActionInterface,
   FetchTweetsActionInterface,
+  RemoveTweetActionInterface,
   SetAddFormStateActionInterface,
   SetTweetsActionInterface,
   SetTweetsLoadingStatusActionInterface,
@@ -15,7 +16,10 @@ export const setTweets = (payload: TweetsState['items']): SetTweetsActionInterfa
   payload,
 });
 
-export const fetchAddTweet = (payload: string): FetchAddTweetActionInterface => ({
+export const fetchAddTweet = (payload: {
+  text: string;
+  images: string[];
+}): FetchAddTweetActionInterface => ({
   type: TweetsActionsType.FETCH_ADD_TWEET,
   payload,
 });
@@ -37,6 +41,11 @@ export const setAddFormState = (payload: AddFormState): SetAddFormStateActionInt
   payload,
 });
 
+export const removeTweet = (payload: string): RemoveTweetActionInterface => ({
+  type: TweetsActionsType.REMOVE_TWEET,
+  payload,
+});
+
 export const fetchTweets = (): FetchTweetsActionInterface => ({
   type: TweetsActionsType.FETCH_TWEETS,
 });
@@ -47,4 +56,5 @@ export type TweetsActions =
   | SetTweetsLoadingStatusActionInterface
   | FetchAddTweetActionInterface
   | AddTweetActionInterface
-  | SetAddFormStateActionInterface;
+  | SetAddFormStateActionInterface
+  | RemoveTweetActionInterface;
